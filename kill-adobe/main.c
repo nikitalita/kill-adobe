@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <wchar.h>
 
-#define PREDEF_PROC_MAX_IDX 11
+#define PREDEF_PROC_MAX_IDX 18
 
 #ifndef NDEBUG
 #include <stdio.h>
@@ -24,8 +24,8 @@ int main(int argc, char* argv[])
 {
 	/* declarations */
 	PROCESSENTRY32 process;
-	HANDLE sys_snapshot,
-		token_handle;
+	HANDLE sys_snapshot = 0;
+	HANDLE token_handle = 0;
 	TOKEN_PRIVILEGES privilege,
 		old_privilege;
 	bool hit;
@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
 		status = ERR_ALLOC;
 		goto cleanup;
 	}
+	
 	proc_names[0] = L"AdobeUpdateService.exe";
 	proc_names[1] = L"AGSService.exe";
 	proc_names[2] = L"armsvc.exe";
@@ -58,6 +59,13 @@ int main(int argc, char* argv[])
 	proc_names[9] = L"Adobe CEF Helper.exe";
 	proc_names[10] = L"Adobe Desktop Service.exe";
 	proc_names[11] = L"CCLibrary.exe";
+	proc_names[12] = L"Creative Cloud Helper.exe";
+	proc_names[13] = L"AdobeIPCBroker.exe";
+	proc_names[14] = L"AdobeCollabSync.exe";
+	proc_names[15] = L"acrotray.exe";
+	proc_names[16] = L"AcrobatNotificationClient.exe";
+	proc_names[17] = L"AdobeNotificationClient.exe";
+	proc_names[18] = L"FNPLicensingService64.exe";
 
 	for (i = PREDEF_PROC_MAX_IDX + 1; i < proc_name_ct; i++)
 	{
@@ -228,8 +236,8 @@ cleanup:
 		free(proc_names[i]);
 	/* free(proc_names); /* Somehow an issue with MSVC calloc causes free() to hang the program; just let the system do my job if it won't let me */
 
-	if (!GetHandleInformation(sys_snapshot, 0)) CloseHandle(sys_snapshot);
-	if (!GetHandleInformation(token_handle, 0)) CloseHandle(token_handle);
+	if (sys_snapshot && !GetHandleInformation(sys_snapshot, 0)) CloseHandle(sys_snapshot);
+	if (token_handle && !GetHandleInformation(token_handle, 0)) CloseHandle(token_handle);
 
 	return status;
 }
